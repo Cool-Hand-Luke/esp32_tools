@@ -1,0 +1,140 @@
+#!/bin/sh
+
+########################################
+# Default target if we are not in a
+# project directory
+########################################
+DEFAULT_TARGET="/micros/esp32/BTRGB"
+
+########################################
+# Colours
+########################################
+col_def="\e[39m"
+col_red="\e[31m"
+col_gre="\e[32m"
+col_yel="\e[33m"
+col_blu="\e[34m"
+col_mag="\e[35m"
+col_cya="\e[36m"
+col_grey="\e[37m"
+col_gray="\e[38m"
+col_lred="\e[91m"
+col_lgre="\e[92m"
+col_lyel="\e[93m"
+col_lblu="\e[94m"
+col_lmag="\e[95m"
+col_lcya="\e[96m"
+col_whi="\e[97m"
+
+########################################
+# Write Function
+########################################
+esp_write()
+{
+  bin=$1
+  offset=$2
+
+  printf "${col_mag}Running: ${col_whi}openocd -f interface/ftdi/esp32_devkitj_v1.cfg
+                 -f board/esp32-wrover-kit-3.3v.cfg 
+                 -c \"program_esp32 ${bin} ${col_red}${offset}${col_whi}\"
+                 -c \"init exit\"\n"
+
+  openocd -f interface/ftdi/esp32_devkitj_v1.cfg \
+          -f board/esp32-wrover-kit-3.3v.cfg \
+          -c "program_esp32 ${bin} ${offset}" \
+          -c "init exit" > /dev/null 2>&1
+
+  return $?
+}
+
+########################################
+# Confirmation
+########################################
+confirm()
+{
+  printf "\n${col_mag}Continue? (Y/N) "
+  stty raw
+  REPLY=$(dd bs=1 count=1 2> /dev/null)
+  stty -raw
+  printf "${col_def}\n\n"
+
+  x=0
+  [ ${REPLY} != "Y" -a ${REPLY} != "y" ] && x=1
+
+  return $x
+}
+
+# ##########################################
+# Which command is being called
+# ##########################################
+COMMAND=$(basename $0)
+
+# ##########################################
+# If we have a 'main' directory and a 'Makefile' assume we are located
+# in our desired working directory
+# ##########################################
+if [ -d main -a -f Makefile ]
+then
+  TARGET=$(pwd)
+else
+  TARGET=${DEFAULT_TARGET}
+  cd ${TARGET}
+
+  if [ ! -f Makefile ]
+  then
+    echo "No Makefile!"
+    exit
+  fi
+fi
+
+# ##########################################
+# Get our project name
+# ##########################################
+PROJECT=$(awk '$1 ~ /PROJECT_NAME/ {print $3}' < Makefile)
+
+# ##########################################
+# (App Main)
+# ##########################################
+if [ ${COMMAND} == "ocd_debug" ]
+then
+  xtensa-esp32-elf-gdb build/${PROJECT}.elf
+elif [ ${COMMAND} == "ocd_server" ]
+then
+  openocd
+elif [ ${COMMAND} == "ocd_flash" ]
+then
+  if [ ${#} -eq 2 ]
+  then
+    BIN=$1
+    OFFSET=$2
+
+    confirm
+
+    if [ $? -eq 0 ]
+    then
+      esp_write ${BIN} ${OFFSET}
+      echo $?
+    fi
+  else
+    confirm
+
+    if [ $? -eq 0 ]
+    then
+      make | sed 's/0x/\n0x/g'|grep "^0x"|
+      while read offset bin
+      do
+        esp_write ${bin} ${offset}
+        echo $?
+      done
+    fi
+  fi
+elif [ ${COMMAND} == "ocd_coredump" ]
+then
+  ${IDF_TOOLS_PATH}/components/espcoredump/espcoredump.py info_corefile -t b64 -c coredump.txt build/${PROJECT}.elf
+elif [ ${COMMAND} == "ocd_dbgdump" ]
+then
+  ${IDF_TOOLS_PATH}/components/espcoredump/espcoredump.py dbg_corefile -t b64 -c coredump.txt build/${PROJECT}.elf
+else
+  make -j 10
+fi
+
