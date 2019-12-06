@@ -9,10 +9,8 @@ The ota script calls my modified version of the update_firmware.py script to, yo
 Provided "as is". Who knows, someone may also find them useful :)
 
 
-Write one file to a specific offset on the ESP32 board:
-**
+Write one file to a specific offset on the ESP32 board:<br />
 ``` ocd_flash <binfile> <offset> ```
-**
 
 Write all the bin files in the build directory to their correct offsets:
 ocd_flash
