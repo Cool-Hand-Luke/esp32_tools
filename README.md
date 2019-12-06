@@ -10,7 +10,9 @@ Provided "as is". Who knows, someone may also find them useful :)
 
 
 Write one file to a specific offset on the ESP32 board:
-** ``` ocd_flash <binfile> <offset> ```**
+**
+``` ocd_flash <binfile> <offset> ```
+**
 
 Write all the bin files in the build directory to their correct offsets:
 ocd_flash
