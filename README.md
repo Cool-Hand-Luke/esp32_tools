@@ -29,6 +29,6 @@ Debug a corefile name "corefile.txt.<br />
 ```ocd_dbgdump```
 
 Do an OTA update. If you don't specify a host, it will use the default configured within the script.<br />
-```ota <ip address/host>
+```ota <ip address/host>```
 
 ```esp_ocd``` is an early version of the ocd_ tools.
