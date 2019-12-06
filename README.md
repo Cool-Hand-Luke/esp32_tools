@@ -12,23 +12,23 @@ Provided "as is". Who knows, someone may also find them useful :)
 Write one file to a specific offset on the ESP32 board:<br />
 ``` ocd_flash <binfile> <offset> ```
 
-Write all the bin files in the build directory to their correct offsets:
-ocd_flash
+Write all the bin files in the build directory to their correct offsets:<br />
+``` ocd_flash```
 
-Start an OpenOCD debug server for the current or default project:
-ocd_server
+Start an OpenOCD debug server for the current or default project:<br />
+```ocd_server```
 
-Connect to a running OpenOCD debug server:
-ocd_debug
+Connect to a running OpenOCD debug server:<br />
+```ocd_debug```
 
 Dump a corefile named "corefile.txt". This could be a corefile that has been dumped via the UART.
-(I suppose I should make this take an optional name, but hey, I suck)
-ocd_coredump
+(I suppose I should make this take an optional name, but hey, I suck)<br />
+```ocd_coredump```
 
-Debug a corefile name "corefile.txt.
-ocd_dbgdump
+Debug a corefile name "corefile.txt.<br />
+```ocd_dbgdump```
 
-Do an OTA update. If you don't specify a host, it will use the default configured within the script.
-ota <ip address/host>
+Do an OTA update. If you don't specify a host, it will use the default configured within the script.<br />
+```ota <ip address/host>
 
-esp_ocd is an early version of the ocd_ tools.
+```esp_ocd``` is an early version of the ocd_ tools.
